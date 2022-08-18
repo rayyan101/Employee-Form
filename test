@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+* {
+  box-sizing: border-box;
+}
+
+input[type=text], input[type=email],input[type=file]{
+  width: 100%;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: vertical;
+}
+
+label {
+  padding: 12px 12px 12px 0;
+  display: inline-block;
+}
+
+input[type=submit] {
+  background-color: #008B8B;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  float: right;
+}
+
+input[type=submit]:hover {
+  background-color: #20B2AA;
+}
+
+.container {
+  border-radius: 5px;
+  background-color: #f2f2f2;
+  padding: 20px;
+}
+
+.col-25 {
+  float: left;
+  width: 25%;
+  margin-top: 6px;
+}
+
+.col-75 {
+  float: left;
+  width: 75%;
+  margin-top: 6px;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Responsive layout - when the screen is less than 600px wide, make the two columns stack on top of each other instead of next to each other */
+@media screen and (max-width: 600px) {
+  .col-25, .col-75, input[type=submit] {
+    width: 100%;
+    margin-top: 0;
+  }
+}
+</style>
+</head>
+<body>
+
+<h2>Employee Form</h2>
+
+<div class="container">
+  <form method="POST" enctype="multipart/form-data">
+    <div class="row">
+      <div class="col-25">
+        <label for="fname">First Name</label>
+      </div>
+      <div class="col-75">
+        <input type="text" id="fname" name="fname" placeholder="Enter First Name..." required>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-25">
+        <label for="lname">Last Name</label>
+      </div>
+      <div class="col-75">
+        <input type="text" id="lname" name="lastname" placeholder="Enter Last Name..." required>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-25">
+        <label for="email">E-mail</label>
+      </div>
+      <div class="col-75">
+        <input type="email" id="email" name="email" placeholder="Enter Email..." required>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-25">
+        <label for="image">Image</label>
+      </div>
+      <div class="col-75">
+        <input type="file" id="image" name="image" required>
+      </div>
+    </div>
+   
+    <div class="row">
+      <input type="submit" name="submit" value="Submit">
+    </div>
+  </form>
+</div>
+
+
+
+
+</body>
+</html>
+
+<?php
+/**
+ * Employee Form in Setting Tab
+ *
+ * 
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+if ( ! class_exists( 'EF_Tab' ) ) {
+	/**
+	 * Class EF_Tab
+	 */
+	class EF_Tab {
+
+		/**
+		 * 
+		 */
+		public function __construct() { 
+			add_action("admin_menu", array( $this, "wpdocs_register_my_custom_menu_page"));
+			$this->myFunction();
+		}
+		
+		/**
+		 * Create a tab in setting menu page.
+		 */
+		public function wpdocs_register_my_custom_menu_page(){
+			add_submenu_page( 
+				'options-general.php',
+				'Employees',
+				'Employee Form',
+				'administrator',
+				'employee-form',
+				array($this, 'my_custom_menu_page'),null );
+		}
+
+		/**
+		 * Display a custom menu page
+		 */
+		public function my_custom_menu_page(){
+			global $wpdb;    
+			$employees = $wpdb->prefix . 'employee';
+			$result = $wpdb->get_results ( "SELECT * FROM $employees");
+
+			include_once dirname( __DIR__ ).'/templates/employee-form.php';
+			include_once dirname( __DIR__ ).'/templates/data.php';
+
+		}
+
+
+		public function myFunction() { 
+			global $wpdb;
+
+			if ( isset( $_POST['submit'] ) ){   
+				$table_name = $wpdb->prefix . 'employee'; 
+
+				$fname = $_POST['fname'];
+				$lastname = $_POST['lastname'];
+				$email = $_POST['email'];
+				$tmp_name = $_FILES["image"]["tmp_name"];
+				
+				$wpdb->insert(
+					$table_name, array(
+						'fname' => $fname,
+						'lname' => $lastname,
+						'email' => $email,
+						'img' => $file_name //$targetpath
+					)
+				);
+			}
+		}
+		 
+	}
+}
+
+new EF_Tab();
+	
+				// $path_array = wp_upload_dir(); // normal format start
+				// $file_name   =   pathinfo($tmp_name ,PATHINFO_FILENAME).time().".".pathinfo($tmp_name ,PATHINFO_EXTENSION);  
+				// $imgtype     =   strtolower(pathinfo($tmp_name,PATHINFO_EXTENSION));                
+				// $targetpath        =   $path_array["path"]."/".$file_name;
+
+				// move_uploaded_file($tmp_name, $targetpath );
+
+
+
+
+        <?php echo $res[0]->name?>
+
+
+
+
+
+        
+        <td> <form   method="POST">  
+          <input type="text" id="emp_id" name="emp_id" style="display: none;" value="<?php echo $row->id?>">
+          <input type="submit"  value="Delete" name="employee_delete" ></form></td>
+
+          <td> <form   method="POST"> 
+          <input type="text" id="emp_id2"  name="emp_id2" style="display: none;" value="<?php echo $row->id?>">
+          <input type="submit" style="margin-right:500px;" class="update_button" value="Update" name="employee_update""></form></td>
+       
+          <td> <form   method="POST">  
+          <input type="text" id="emp_id4" name="emp_id4" style="display: none;" value="<?php echo $row->id?>">
+          <input type="submit"  value="PDF" name="employee_pdf"></form></td>
