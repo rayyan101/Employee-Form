@@ -44,7 +44,7 @@ if ( ! class_exists( 'EF_Employee_tab' ) ) {
 		function employee_form_tab_details() { 
 
 			global $wpdb;    
-			$table_name = $wpdb->prefix . 'employee_details';
+			$table_name = $wpdb->prefix . 'employee';
 			$results = $wpdb->get_results( "SELECT * FROM $table_name");
 
 			include_once dirname( __DIR__ ).'/templates/employee-form.php';
@@ -57,15 +57,23 @@ if ( ! class_exists( 'EF_Employee_tab' ) ) {
 		function data_inseting_in_employee_table() {
 
 			global $wpdb;
-			$image_url = "";
-			if ( isset( $_POST['employee_submit'] ) ){     
-				$table_name = $wpdb->prefix . 'employee_details';
-				
-				$name = $_POST['name'];
-				$password = $_POST['fname'];
+			$employees = $wpdb->prefix . 'employee';
+		
+		
+			if ( isset( $_POST['employee_submit'] ) ){  
+				$fname = $_POST['fname'];
+				$lastname = $_POST['lastname'];
 				$email = $_POST['email'];
 				$image = $_FILES['image'];
 
+				$jdate = $_POST['jdate'];
+				$mobile = $_POST['mobile'];
+				$designation = $_POST['designation'];
+				$gender = $_POST['gender'];
+				$check = $_POST['mode'];
+				$skill =  $_POST['rangeInput']; 
+
+				//For Image
 				require_once( ABSPATH . '/wp-includes/pluggable.php' );
 				require_once( ABSPATH . 'wp-admin/includes/file.php' );
 
@@ -90,7 +98,7 @@ if ( ! class_exists( 'EF_Employee_tab' ) ) {
 				$upload[ 'file' ]
 				);
 
-				$image_url = $upload[ 'url' ];
+				$profile = $upload[ 'url' ];
 
 				if( is_wp_error( $attachment_id ) || ! $attachment_id ) {
 				wp_die( 'Upload error.' );
@@ -104,14 +112,19 @@ if ( ! class_exists( 'EF_Employee_tab' ) ) {
 				wp_generate_attachment_metadata( $attachment_id, $upload[ 'file' ] )
 				);
 
-				$wpdb->insert( 
-					$table_name, 
-					array( 
-						'name' => $name, 
-						'fname' => $password, 
-						'email' => $email,
-						'image' => $image_url, 
-					) 
+				$wpdb->insert(
+					$employees, array(
+						'fname' 		=> $fname,
+						'lname' 		=> $lastname,
+						'email' 		=> $email,
+						'img' 			=> $profile,
+						'joining_date' 	=> $jdate,
+						'phone_no' 		=> $mobile,
+						'desgination' 	=> $designation,
+						'gender' 		=> $gender,
+						'checking' 		=> $check,
+						'skill' 		=> $skill,
+					)
 				);
 			}
 		}
@@ -123,10 +136,8 @@ if ( ! class_exists( 'EF_Employee_tab' ) ) {
 
 			global $wpdb;
 			if ( isset( $_POST['employee_delete'] ) ){    
-				$table_name = $wpdb->prefix . 'employee_details';
-			
+				$table_name = $wpdb->prefix . 'employee';
 				$hid = $_POST['emp_id'];
-
 				$wpdb->delete( 
 					$table_name, 
 					array( 
@@ -143,10 +154,9 @@ if ( ! class_exists( 'EF_Employee_tab' ) ) {
 			
 			global $wpdb;
 			if ( isset( $_POST['employee_update'] ) ){   
-				$table_name = $wpdb->prefix . 'employee_details';
+				$table_name = $wpdb->prefix . 'employee';
 				$dlt = $_POST['emp_id2'];
-				$res = $wpdb->get_results( "SELECT id, name, fname, email  FROM $table_name where id = $dlt");
-			// print_r($res[0]->id); die();
+				$res = $wpdb->get_results( "SELECT id, fname, lname, email, img, joining_date, phone_no, desgination, gender, checking, skill FROM $table_name where id = $dlt");
 			include_once dirname( __DIR__ ).'/templates/employee-form.php';
 			}
 		}
@@ -158,19 +168,78 @@ if ( ! class_exists( 'EF_Employee_tab' ) ) {
 
 			global $wpdb;
 			if ( isset( $_POST['employee_update_data'] ) ){    
-				$table_name = $wpdb->prefix . 'employee_details';
-				
-				$name = $_POST['name'];
-				$fname = $_POST['fname'];
-				$email = $_POST['email'];
+				$table_name = $wpdb->prefix . 'employee';
 				$id = $_POST['emp_id3'];
+				$fname = $_POST['fname'];
+				$lastname = $_POST['lastname'];
+				$email = $_POST['email'];
+				$image = $_FILES['image'];
+
+				$jdate = $_POST['jdate'];
+				$mobile = $_POST['mobile'];
+				$designation = $_POST['designation'];
+				$gender = $_POST['gender'];
+				$check = $_POST['mode'];
+				$skill = $_POST['rangeInput'];
+		
+				
+				require_once( ABSPATH . '/wp-includes/pluggable.php' );
+				require_once( ABSPATH . 'wp-admin/includes/file.php' );
+
+				$upload = wp_handle_upload(
+				$image,
+				array( 'test_form' => false )
+				);
+
+				if( ! empty( $upload[ 'error' ] ) ) {
+				wp_die( $upload[ 'error' ] );
+				}
+
+				// it is time to add our uploaded image into WordPress media library
+				$attachment_id = wp_insert_attachment(
+				array(
+				'guid' => $upload[ 'url' ],
+				'post_mime_type' => $upload[ 'type' ],
+				'post_title' => basename( $upload[ 'file' ] ),
+				'post_content' => '',
+				'post_status' => 'inherit',
+				),
+				$upload[ 'file' ]
+				);
+
+				$profile = $upload[ 'url' ];
+
+				if( is_wp_error( $attachment_id ) || ! $attachment_id ) {
+				wp_die( 'Upload error.' );
+				}
+
+				// update medatata, regenerate image sizes
+				require_once( ABSPATH . 'wp-admin/includes/image.php' );
+
+				wp_update_attachment_metadata(
+				$attachment_id,
+				wp_generate_attachment_metadata( $attachment_id, $upload[ 'file' ] )
+				);
+
+
+
 
 				$wpdb->update(
 					$table_name, 
 					array(
-						'name'=>$name, 
-						'fname'=>$fname, 
-						'email'=>$email), 
+
+
+						'fname' 		=> $fname,
+						'lname' 		=> $lastname,
+						'email' 		=> $email,
+						'img' 			=> $profile,
+						'joining_date' 	=> $jdate,
+						'phone_no' 		=> $mobile,
+						'desgination' 	=> $designation,
+						'gender' 		=> $gender,
+						'checking' 		=> $profile,
+						'checking' 		=> $check,
+						'skill' 		=> $skill,), 
 						array('id'=>$id));
 			}
 		}

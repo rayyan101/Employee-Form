@@ -2,84 +2,19 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-* {
-  box-sizing: border-box;
-}
-
-input[type=text], input[type=email],input[type=file]{
-  width: 100%;
-  padding: 5px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  resize: vertical;
-}
-
-label {
-  padding: 12px 12px 12px 0;
-  display: inline-block;
-}
-
-input[type=submit] {
-  background-color: #008B8B;
-  color: white;
-  padding: 12px 20px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  float: right;
-}
-
-input[type=submit]:hover {
-  background-color: #20B2AA;
-}
-
-.container {
-  border-radius: 5px;
-  background-color: #f2f2f2;
-  padding: 20px;
-}
-
-.col-25 {
-  float: left;
-  width: 25%;
-  margin-top: 6px;
-}
-
-.col-75 {
-  float: left;
-  width: 75%;
-  margin-top: 6px;
-}
-
-/* Clear floats after the columns */
-.row:after {
-  content: "";
-  display: table;
-  clear: both;
-}
-
-/* Responsive layout - when the screen is less than 600px wide, make the two columns stack on top of each other instead of next to each other */
-@media screen and (max-width: 600px) {
-  .col-25, .col-75, input[type=submit] {
-    width: 100%;
-    margin-top: 0;
-  }
-}
-</style>
 </head>
 <body>
 
-<h2>Employee Form</h2>
 
-<div class="container">
+<div class="container" id="hide_add_form">
+  <h2>Employee Form</h2>
   <form method="POST" enctype="multipart/form-data">
     <div class="row">
       <div class="col-25">
         <label for="fname">First Name</label>
       </div>
       <div class="col-75">
-        <input type="text" id="fname" name="fname" placeholder="Enter First Name..." required>
+        <input type="text" id="first_name" name="fname" placeholder="Enter First Name..." required>
       </div>
     </div>
     <div class="row">
@@ -87,7 +22,15 @@ input[type=submit]:hover {
         <label for="lname">Last Name</label>
       </div>
       <div class="col-75">
-        <input type="text" id="lname" name="lastname" placeholder="Enter Last Name..." required>
+        <input type="text" id="last_name" name="lastname" placeholder="Enter Last Name..." required>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-25">
+        <label for="email">Joining Date</label>
+      </div>
+      <div class="col-75">
+        <input type="date" id="jdate" name="jdate" required>
       </div>
     </div>
     <div class="row">
@@ -100,18 +43,71 @@ input[type=submit]:hover {
     </div>
     <div class="row">
       <div class="col-25">
-        <label for="image">Image</label>
+        <label for="image">Profile Image</label>
       </div>
       <div class="col-75">
-        <input type="file" id="image" name="image" required>
+        <input type="file" id="image" name="image">
       </div>
     </div>
-   
+    <div class="row">
+      <div class="col-25">
+        <label for="mobile">Mobile Number</label>
+      </div>
+      <div class="col-75">
+        <input type="tel" id="mobile" name="mobile" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" placeholder="Enter mobile number"required>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-25">
+        <label for="Designation">Choose a Designation</label>
+      </div>
+      <div class="col-75">
+      <select name="designation" id="designation">
+        <option>-- Select --</option>
+        <option value="Account Manager">Account Manager</option>
+        <option value="Manager">Manager</option>
+        <option value="HR">HR</option>
+        <option value="Developer">Software Developer</option>
+        <option value="SQA">SQA</option>
+        <option value="Content Writer">Content Writer</option>
+       
+      </select>
+      </div>
+      <input type="checkbox" id="mode" name="mode"style="margin:9px;"><b>Enable If Designation is Developer</b>
+    </div>
+    <div class="row" id="skills">
+      <div class="col-25">
+        <label for="skill">Skills</label>
+      </div>
+      <div class="col-75">
+      <select name="skills[]" id="multiple_select_skill" multiple="multiple">
+        <option value="Documentation">Documentation</option>
+        <option value="designer">Front-end Designer</option>
+        <option value="OOP">OOP</option>
+        <option value="JavaScript">JavaScript</option>
+        <option value="Database">Database</option>
+        <option value="Python">Python</option>
+        <option value="PHP">PHP</option>
+        <option value="Java">Java</option>
+        <option value="C#">C#</option>
+      </select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-25">
+        <label for="gender">Gender</label>
+      </div>
+      <div class="col-75">
+        <input type="radio" id="gender" name="gender" checked value="male">Male
+        <input type="radio" id="gender" name="gender" value="female">female
+      </div>
+    </div>
     <div class="row">
       <input type="submit" name="submit" value="Submit">
     </div>
   </form>
 </div>
+
 
 
 
@@ -141,9 +137,9 @@ if ( ! class_exists( 'EF_Tab' ) ) {
 		 */
 		public function __construct() { 
 			add_action("admin_menu", array( $this, "wpdocs_register_my_custom_menu_page"));
-			$this->myFunction();
+			$this->save_employees_data();
+			$this->delete_employee_data();
 		}
-		
 		/**
 		 * Create a tab in setting menu page.
 		 */
@@ -158,71 +154,333 @@ if ( ! class_exists( 'EF_Tab' ) ) {
 		}
 
 		/**
-		 * Display a custom menu page
+		 * Display a Form and Table of Employees
 		 */
 		public function my_custom_menu_page(){
-			global $wpdb;    
+			global $wpdb;
 			$employees = $wpdb->prefix . 'employee';
 			$result = $wpdb->get_results ( "SELECT * FROM $employees");
-
 			include_once dirname( __DIR__ ).'/templates/employee-form.php';
 			include_once dirname( __DIR__ ).'/templates/data.php';
 
 		}
 
-
-		public function myFunction() { 
+		/**
+		 * Save the data of employees form.
+		 */
+		public function save_employees_data() { 
 			global $wpdb;
-
-			if ( isset( $_POST['submit'] ) ){   
-				$table_name = $wpdb->prefix . 'employee'; 
-
+			$employees = $wpdb->prefix . 'employee';
+			$result = $wpdb->get_results ( "SELECT email FROM $employees");
+			$proceed ='';
+			$profile ='';
+			if ( isset( $_POST['submit'] ) ){  
 				$fname = $_POST['fname'];
 				$lastname = $_POST['lastname'];
 				$email = $_POST['email'];
-				$tmp_name = $_FILES["image"]["tmp_name"];
-				
-				$wpdb->insert(
-					$table_name, array(
-						'fname' => $fname,
-						'lname' => $lastname,
-						'email' => $email,
-						'img' => $file_name //$targetpath
+				$image = $_FILES['image'];
+
+				$jdate = $_POST['jdate'];
+				$mobile = $_POST['mobile'];
+				$designation = $_POST['designation'];
+				$gender = $_POST['gender'];
+				// if(isset($_POST['mode'])){
+					if(isset($_POST['mode'])==true){
+						$check = $_POST['mode'];
+						$skill = implode(', ',$_POST['skills']);
+					}
+					else{
+						$check = 'off';
+						$skill = 'its Null now';
+					}
+				// }
+				//For Image
+				require_once( ABSPATH . '/wp-includes/pluggable.php' );
+				require_once( ABSPATH . 'wp-admin/includes/file.php' );
+
+				$upload = wp_handle_upload(
+				$image,
+				array( 'test_form' => false )
+				);
+
+				if( ! empty( $upload[ 'error' ] ) ) {
+				wp_die( $upload[ 'error' ] );
+				}
+
+				// it is time to add our uploaded image into WordPress media library
+				$attachment_id = wp_insert_attachment(
+				array(
+				'guid' => $upload[ 'url' ],
+				'post_mime_type' => $upload[ 'type' ],
+				'post_title' => basename( $upload[ 'file' ] ),
+				'post_content' => '',
+				'post_status' => 'inherit',
+				),
+				$upload[ 'file' ]
+				);
+
+				$profile = $upload[ 'url' ];
+
+				if( is_wp_error( $attachment_id ) || ! $attachment_id ) {
+				wp_die( 'Upload error.' );
+				}
+
+				// update medatata, regenerate image sizes
+				require_once( ABSPATH . 'wp-admin/includes/image.php' );
+
+				wp_update_attachment_metadata(
+				$attachment_id,
+				wp_generate_attachment_metadata( $attachment_id, $upload[ 'file' ] )
+				);
+
+				// For Update
+				foreach ($result as $key => $value) {
+					foreach ($value as $nested_key => $nested_value) {
+						if($nested_key != 'email'){
+							continue;
+						}
+						else if($email == $nested_value){
+							$proceed = 'to_update';
+							break;
+						}
+					}
+	
+					if( $proceed == 'to_update' ){
+						break;
+					}
+				}
+				if('to_update' == $proceed){
+					$wpdb->update(
+						$employees, array(
+							'fname' 		=> $fname,
+							'lname' 		=> $lastname,
+							'email' 		=> $email,
+							'img' 			=> $profile,
+							'joining_date' 	=> $jdate,
+							'phone_no' 		=> $mobile,
+							'desgination' 	=> $designation,
+							'gender' 		=> $gender,
+							'checking' 		=> $check,
+							'skill' 		=> $skill,
+						), 
+						array(
+							'email'=>$email
+						)
+					);
+				}
+
+				else{
+					$wpdb->insert(
+						$employees, array(
+							'fname' 		=> $fname,
+							'lname' 		=> $lastname,
+							'email' 		=> $email,
+							'img' 			=> $profile,
+							'joining_date' 	=> $jdate,
+							'phone_no' 		=> $mobile,
+							'desgination' 	=> $designation,
+							'gender' 		=> $gender,
+							'checking' 		=> $profile,
+							'checking' 		=> $check,
+							'skill' 		=> $skill,
+						)
+					);
+				}
+			}
+		}
+
+		/**
+		 * 
+		 */
+		public function delete_employee_data() { 
+			
+			global $wpdb;
+			$employees = $wpdb->prefix . 'employee';
+			if(isset($_GET['dlt'])){
+				$dlt_id= $_GET['dlt'];
+				// echo $dlt_id;
+				$wpdb->delete(
+					$employees, array(
+						'id' => $dlt_id
 					)
 				);
 			}
 		}
-		 
 	}
 }
 
 new EF_Tab();
-	
-				// $path_array = wp_upload_dir(); // normal format start
-				// $file_name   =   pathinfo($tmp_name ,PATHINFO_FILENAME).time().".".pathinfo($tmp_name ,PATHINFO_EXTENSION);  
-				// $imgtype     =   strtolower(pathinfo($tmp_name,PATHINFO_EXTENSION));                
-				// $targetpath        =   $path_array["path"]."/".$file_name;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+</head>
+<body>
+  
+<div class="container">
+  <h2>All Employees</h2>
+  <label>Search</label>
+  <input id="search_input" type="text" placeholder="Search.." >
+  <br><br>          
+  <table class="wp-list-table widefat fixed striped table-view-list posts">
+    <thead>
+      <tr>
+        <th>S.No</th>
+        <th>Image</th>
+        <th>Firstname</th>
+        <th>Lastname</th>
+        <th>Email</th>
+        <th>joining date</th>
+        <th>Mobile No.</th>
+        <th>Designation</th>
+        <th>Gender</th>
+        <th>Mode</th>
+        <th>skill</th>
+        <th>Actions<th>
+      </tr>
+    </thead>
+    <tbody id="seacrh_table">
+      
+    <?php
+    $i=1;
+    foreach($result as $row){ 
+      $id =$row->id;
+    ?>
+    <tr>
+        <td><?php echo $i++?></td>
+        <td id="get-<?php echo $id?>-4"><img src="<?php echo $row->img?>" style="width:40px;height:40px;border-radius:25px;;"></td>
+        <td id="get-<?php echo $id?>-1" class ="capital_first_letter"><?php echo $row->fname?></td>
+        <td id="get-<?php echo $id?>-2" class ="capital_first_letter"><?php echo $row->lname?></td>
+        <td id="get-<?php echo $id?>-3"><?php echo $row->email?></td>
 
-				// move_uploaded_file($tmp_name, $targetpath );
+        <td id="get-<?php echo $id?>-5"><?php echo $row->joining_date?></td>
+        <td id="get-<?php echo $id?>-6"><?php echo $row->phone_no?></td>
+        <td id="get-<?php echo $id?>-7"><?php echo $row->desgination?></td>
+        <td id="get-<?php echo $id?>-8"><?php echo $row->gender?></td>
+        <td id="get-<?php echo $id?>-9"><?php echo $row->checking?></td>
+        <td id="get-<?php echo $id?>-10"><?php echo $row->skill?></td>
+
+        <form method="GET">
+          <td>
+            <a href="<?php echo admin_url() .'options-general.php?page=employee-form&dlt=' . $id?>" style="text-decoration: none;color: #b32d2e;"> Delete </a>
+        </form>
+        <b>|</b>
+        <a id ="<?php echo $id?>" class="abc" style="text-decoration: none;cursor:pointer"> Update</button>
+        <b>|</b>
+        <a id ="<?php echo $id?>" class="pdf" style="text-decoration: none;cursor:pointer"> PDF</a>  
+          </td>
+    </tr>
+    <?php } ?>
+    
+    </tbody>
+  </table>
+</div>
+
+</body>
+</html>
+
+
+* {
+  box-sizing: border-box;
+}
+
+input[type=text], input[type=email],input[type=file],input[type=date],input[type=tel],select[id=designation],select[multiple]{
+  width: 70%;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: vertical;
+}
+
+label {
+  padding: 12px 12px 12px 0;
+  display: inline-block;
+}
+
+input[type=submit] {
+  background-color: #008B8B;
+  color: white;
+  padding: 12px 20px;
+  margin-right:230px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  float: right;
+}
+
+input[type=submit]:hover {
+  background-color: #20B2AA;
+}
+
+.container {
+  border-radius: 5px;
+  background-color: #f2f2f2;
+  padding: 20px;
+}
+
+.col-25 {
+  float: left;
+  width: 25%;
+  margin-top: 6px;
+}
+.select2-selection{
+  width: 200px !important;
+  padding: 5px;
+}
+.col-75 {
+  float: left;
+  width: 75%;
+  margin-top: 6px;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+#search_input{
+  width: 30%;;
+}
+.capital_first_letter{
+text-transform:capitalize;
+}
+
+/* Responsive layout - when the screen is less than 600px wide, make the two columns stack on top of each other instead of next to each other */
+@media screen and (max-width: 600px) {
+  .col-25, .col-75, input[type=submit] {
+    width: 100%;
+    margin-top: 0;
+  }
+}
 
 
 
 
-        <?php echo $res[0]->name?>
 
 
 
 
 
-        
-        <td> <form   method="POST">  
+<?php
+    foreach($results as $row){ 
+    ?>
+    <tr>
+        <td id="get-<?php echo $row->id?>-1"><?php echo $row->id?></td>
+        <td id="get-<?php echo $row->id?>-2"><?php echo $row->name?></td>
+        <td id="get-<?php echo $row->id?>-3"><?php echo $row->fname?></td>
+        <td id="get-<?php echo $row->id?>-4"><?php echo $row->email?></td>  
+        <td id="get-<?php echo $row->id?>-5"><img src="<?php echo $row->image ?> " style="width:40px; height:40px;" /></td>
+        <td> <form  method="POST">  
           <input type="text" id="emp_id" name="emp_id" style="display: none;" value="<?php echo $row->id?>">
-          <input type="submit"  value="Delete" name="employee_delete" ></form></td>
-
-          <td> <form   method="POST"> 
+          <input type="submit"  value="Delete" name="employee_delete" class="btndata"></form></td>
+        <td> <form   method="POST"> 
           <input type="text" id="emp_id2"  name="emp_id2" style="display: none;" value="<?php echo $row->id?>">
-          <input type="submit" style="margin-right:500px;" class="update_button" value="Update" name="employee_update""></form></td>
-       
-          <td> <form   method="POST">  
-          <input type="text" id="emp_id4" name="emp_id4" style="display: none;" value="<?php echo $row->id?>">
-          <input type="submit"  value="PDF" name="employee_pdf"></form></td>
+          <input type="submit"  class="update_button" value="Update" name="employee_update" class="btndata"></form></td>
+        <td> 
+          <a style=" height: 50px;" id="<?php echo $row->id?>" class="btndata2" > Print  </a></td> 
+    </tr>
+    <?php } ?>

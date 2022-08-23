@@ -1,121 +1,20 @@
-
 <!DOCTYPE html>
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-* {
-  box-sizing: border-box;
-}
-
-input[type=text], input[type=email],input[type=file]{
-  width: 50%;
-  padding: 5px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  resize: vertical;
-}
-
-label {
-  padding: 12px 12px 12px 0;
-  display: inline-block;
-}
-
-
-
-.btnform{
-  background-color: #008B8B;
-  color: white;
-  padding: 12px 20px;
-  margin-right: 450px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  float: right;
-}
-
-
-.btndata {
-  background-color: #008B8B;
-  color: white;
- 
-  margin-right: 0px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  height: 30px;
-}
-
-.btndata2 {
-  background-color: #008B8B;
-  color: white;
-  padding: 7px 12px;
-  margin-right: 0px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  height: 60px;
-}
-
-.update_button{
-  background-color: #008B8B;
-  color: white;
-  margin-right: 0px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  height: 30px;
-}
-
-
-input[type=submit]:hover {
-  background-color: #20B2AA;
-}
-
-.container {
-  border-radius: 5px;
-  background-color: #f2f2f2;
-  padding: 20px;
-}
-
-.col-25 {
-  float: left;
-  width: 25%;
-  margin-top: 6px;
-}
-
-.col-75 {
-  float: left;
-  width: 75%;
-  margin-top: 6px;
-}
-
-/* Clear floats after the columns */
-.row:after {
-  content: "";
-  display: table;
-  clear: both;
-}
-
-/* Responsive layout - when the screen is less than 600px wide, make the two columns stack on top of each other instead of next to each other */
-@media screen and (max-width: 600px) {
-  .col-25, .col-75, input[type=submit] {
-    width: 100%;
-    margin-top: 0;
-  }
-}
-</style>
 </head>
 <body>
-<div  class="container">
-<h2>Employee Form</h2>
-  <form  method="POST" enctype="multipart/form-data">
-    <div class="row"> 
+
+
+<div class="container" id="hide_add_form">
+  <h2>Employee Form</h2>
+  <form method="POST" enctype="multipart/form-data">
+    <div class="row">
       <div class="col-25">
-        <label for="fname">Name</label>
+        <label for="fname">First Name</label>
       </div>
       <div class="col-75">
-        <input type="text" id="fname" name="name" value="<?php echo $res[0]->name?>" placeholder="Enter yoour Name..." required>
+        <input type="text" id="first_name" name="fname" value="<?php echo $res[0]->fname?>" placeholder="Enter First Name..." required>
       </div>
     </div>
     <div class="row">
@@ -123,7 +22,15 @@ input[type=submit]:hover {
         <label for="lname">Last Name</label>
       </div>
       <div class="col-75">
-        <input type="text" id="lname" name="fname" value="<?php echo $res[0]->fname?>" placeholder="Enter Father Name..." required>
+        <input type="text" id="last_name" value="<?php echo $res[0]->lname?>" name="lastname" placeholder="Enter Last Name..." required>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-25">
+        <label for="email">Joining Date</label>
+      </div>
+      <div class="col-75">
+        <input type="date" id="jdate" name="jdate" value="<?php echo $res[0]->joining_date?>" required>
       </div>
     </div>
     <div class="row">
@@ -136,24 +43,81 @@ input[type=submit]:hover {
     </div>
     <div class="row">
       <div class="col-25">
-        <label for="image">Image</label>
+        <label for="image">Profile Image</label>
       </div>
       <div class="col-75">
-        <input type="file" id="img" name="image" required>
+        <input type="file" id="image" name="image" required>
       </div>
     </div>
+    <div class="row">
+      <div class="col-25">
+        <label for="mobile">Mobile Number</label>
+      </div>
+      <div class="col-75">
+        <input type="tel" value="<?php echo $res[0]->phone_no?>"  id="mobile" name="mobile" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');" placeholder="Enter mobile number"required>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-25">
+        <label for="Designation">Choose a Designation</label>
+      </div>
+      <div class="col-75">
+      <select name="designation" id="designation">
+        <option> <?php echo $res[0]->desgination?> </option>
+        <option value="Account Manager">Account Manager</option>
+        <option value="Manager">Manager</option>
+        <option value="HR">HR</option>
+        <option value="Developer">Software Developer</option>
+        <option value="SQA">SQA</option>
+        <option value="Content Writer">Content Writer</option>
+      </select>
+      </div>
+      <input type="checkbox" id="mode" 
+      <?php if($res[0]->checking=="on"){ ?> checked  <?php } ?>
+      name="mode"style="margin:9px;"><b>Enable If Designation is Developer</b>
+    </div>
+
+    <div class="row">
+      <div class="col-25">
+        <label for="Skills">Skills level</label>
+      </div>
+      <div class="col-75">
+      <input type="range" id="skills" style="width:300px;" name="rangeInput" min="0" max="100" onchange="updateTextInput(this.value);" required>
+    <input type="text" id="textInput" value="<?php echo $res[0]->skill?>" disabled style="width:45px;height:45px; text-align: center; border-radius: 50%; border:1px solid grey; color: black;">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-25">
+        <label for="gender">Gender</label>
+      </div>
+      <div class="col-75">
+        <input type="radio" id="gender" name="gender" 
+        <?php if($res[0]->gender=="male"){ ?> checked  <?php } ?>
+        
+        checked value="male">Male
+        <input type="radio" id="gender" name="gender" 
+        <?php if($res[0]->gender=="female"){ ?> checked  <?php } ?>
+        value="female">female
+      </div>
+    </div>
+    
     <?php if($res=="") {?>
     <div class="row">
-      <input type="submit" class="btnform" name="employee_submit" value="Submit"> 
+      <input type="submit" class="sub_button" name="employee_submit" value="Submit"> 
     </div> 
     <?php }?>
     <?php if(!$res=="") {?>
     <div class="row">
     <input type="text" id="emp_id3" style="display: none;" name="emp_id3" value="<?php echo $res[0]->id?>">
-      <input type="submit" class="btnform" name="employee_update_data" value="Update"> 
+      <input type="submit" class="sub_button" name="employee_update_data" value="Update"> 
     </div> 
     <?php }?>
+
+
+
+
   </form>
 </div>
 </body>
 </html>
+
