@@ -1,14 +1,15 @@
 <?php
 /**
- * Employee Form in Setting Tab
+ * Employee Form in Setting Tab and handling database by insert delete update.
  *
- * @package Employee-Form
+ * @package employee-form
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 if ( ! class_exists( 'Ef_Employee_Tab' ) ) {
+	
 	/**
 	 * Class EF_Employee_tab
 	 */
@@ -18,10 +19,10 @@ if ( ! class_exists( 'Ef_Employee_Tab' ) ) {
 		 * Constructore
 		 */
 		public function __construct() {
-			$this->data_inseting_in_employee_table();
-			$this->delete_employee();
-			$this->update_employee();
-			$this->data_updating_in_employee_table();
+			$this->ef_data_inseting_in_employee_table();
+			$this->ef_delete_employee();
+			$this->ef_update_employee();
+			$this->ef_data_updating_in_employee_table();
 			add_action( 'admin_menu', array( $this, 'ef_register_employee_form_tab' ) );
 		}
 
@@ -35,7 +36,7 @@ if ( ! class_exists( 'Ef_Employee_Tab' ) ) {
 				'Employee Form',
 				'administrator',
 				'ef-employee-form',
-				array( $this, 'employee_form_tab_details' ),
+				array( $this, 'ef_employee_form_tab_details' ),
 				null
 			);
 		}
@@ -43,30 +44,30 @@ if ( ! class_exists( 'Ef_Employee_Tab' ) ) {
 		/**
 		 * Including template.
 		 */
-		public function employee_form_tab_details() {
+		public function ef_employee_form_tab_details() {
 
 			global $wpdb;
 			$table_name = $wpdb->prefix . 'employee';
 			$results    = $wpdb->get_results( "SELECT * FROM $table_name" );
 
 			include_once dirname( __DIR__ ) . '/templates/employee-form.php';
-			include_once dirname( __DIR__ ) . '/templates/employee-data.php';
+			include_once dirname( __DIR__ ) . '/templates/employee-table.php';
 		}
 
 		/**
 		 * Inserting employee details in database
 		 */
-		function data_inseting_in_employee_table() {
+		public function ef_data_inseting_in_employee_table() {
 
 			global $wpdb;
 			$employees = $wpdb->prefix . 'employee';
 
 			if ( isset( $_POST['employee_submit'] ) ) {
+				// wp_verify_nonce('my_nonce' );
 				$fname    = $_POST['fname'];
 				$lastname = $_POST['lastname'];
 				$email    = $_POST['email'];
 				$image    = $_FILES['image'];
-
 				$jdate       = $_POST['jdate'];
 				$mobile      = $_POST['mobile'];
 				$designation = $_POST['designation'];
@@ -82,10 +83,6 @@ if ( ! class_exists( 'Ef_Employee_Tab' ) ) {
 					$image,
 					array( 'test_form' => false )
 				);
-
-				if ( ! empty( $upload['error'] ) ) {
-					wp_die( $upload['error'] );
-				}
 
 				// it is time to add our uploaded image into WordPress media library
 				$attachment_id = wp_insert_attachment(
@@ -134,7 +131,7 @@ if ( ! class_exists( 'Ef_Employee_Tab' ) ) {
 		/**
 		 * Deleting employee details in database
 		 */
-		function delete_employee() {
+		public function ef_delete_employee() {
 
 			global $wpdb;
 			if ( isset( $_POST['employee_delete'] ) ) {
@@ -152,7 +149,7 @@ if ( ! class_exists( 'Ef_Employee_Tab' ) ) {
 		/**
 		 * Retrive employee details from database for updating.
 		 */
-		function update_employee() {
+		public function ef_update_employee() {
 
 			global $wpdb;
 			if ( isset( $_POST['employee_update'] ) ) {
@@ -166,11 +163,12 @@ if ( ! class_exists( 'Ef_Employee_Tab' ) ) {
 		/**
 		 * Updating employee details in database
 		 */
-		function data_updating_in_employee_table() {
+		public function ef_data_updating_in_employee_table() {
 
 			global $wpdb;
 			if ( isset( $_POST['employee_update_data'] ) ) {
 				$table_name = $wpdb->prefix . 'employee';
+				
 				$id         = $_POST['emp_id3'];
 				$fname      = $_POST['fname'];
 				$lastname   = $_POST['lastname'];

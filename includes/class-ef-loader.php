@@ -36,7 +36,7 @@ if ( ! class_exists( 'EF_Loader' ) ) {
 		/**
 		 * Function for Creating Employee Table in Databse.
 		 */
-		function creating_employee_table() {
+		public function creating_employee_table() {
 			global $wpdb;
 			$table_name      = $wpdb->prefix . 'employee';
 			$charset_collate = $wpdb->get_charset_collate();

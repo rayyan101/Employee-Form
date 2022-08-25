@@ -12,7 +12,6 @@
 					<label for="fname">First Name</label>
 				</div>
 				<div class="col-75">
-				<input type="hidden" id="nonce" value="my_nonce">
 					<input type="text" id="first_name" name="fname" value="<?php echo $res[0]->fname; ?>" placeholder="Enter First Name..." required>
 				</div>
 			</div>
@@ -74,10 +73,10 @@
 			</div>
 			<div class="row">
 				<div class="col-25">
-					<label for="mobile">Term and Condition </label>
+					<label for="mobile">Checkbox</label>
 				</div>
 				<div class="col-75">
-					<input type="checkbox" value="agreed" id="mode" <?php if ( $res[0]->checking == 'agreed' ) { ?> checked  <?php } ?> name="mode"style="margin:9px;"><b>Enable If You agree to Term and Condition</b>
+					<input type="checkbox" id="mode" <?php if ( $res[0]->checking == 'on' ) { ?> checked  <?php } ?> name="mode"style="margin:9px;"><b>Enable If Designation is Developer</b>
 				</div>
 			</div>
 			<div class="row">
@@ -112,3 +111,4 @@
 	</div>
 </body>
 </html>
+

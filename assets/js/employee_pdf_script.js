@@ -17,9 +17,6 @@ jQuery(document).ready(
                 var pid9 = 'get-' + id + '-9';
                 var pid10 = 'get-' + id + '-10';
 
-
-                
-
                 var image = document.getElementById(pid1).firstChild.src
                 var fname = document.getElementById(pid2).innerText
                 var lname = document.getElementById(pid3).innerText
@@ -39,32 +36,44 @@ jQuery(document).ready(
                         <div>
                         <h3>Employee Summary</h3>
                         <img src="${image}" width="100" height="100"/>
-                       </div>
-                            <div>
-                          <p><b> First Name </b> </p>  <p> ${fname} </p>
-                          <p><b> Last Name </b> </p>  <p> ${lname} </p> 
-                          <p><b> Email </b> </p>  <p> ${email} </p> 
-                          <p><b> Date of Birth </b> </p>  <p> ${dob} </p> 
-                          <p><b> Phone Number </b> </p>  <p> ${phone} </p> 
-                          <p><b> Designation </b> </p>  <p> ${desg} </p> 
-                          <p><b> Gender </b> </p>  <p> ${gender} </p> 
-                          <p><b> Mode </b> </p>  <p> ${check} </p> 
-                          <p><b> Skills level </b> </p>  <p> ${skills} </p>                                                 
-                          </div></div>` 
-
+                        </div>
+                    <div>
+                        <p><b> First Name </b> </p>  <p> ${fname} </p>
+                        <p><b> Last Name </b> </p>  <p> ${lname} </p> 
+                        <p><b> Email </b> </p>  <p> ${email} </p> 
+                        <p><b> Date of Birth </b> </p>  <p> ${dob} </p> 
+                        <p><b> Phone Number </b> </p>  <p> ${phone} </p> 
+                        <p><b> Designation </b> </p>  <p> ${desg} </p> 
+                        <p><b> Gender </b> </p>  <p> ${gender} </p> 
+                        <p><b> Terms and Condition </b> </p>  <p> ${check} </p> 
+                        <p><b> Skills level </b> </p>  <p> ${skills} </p>                                                 
+                        </div>
+                    </div>` 
                 );
-
                 to_be_print.print();
                 to_be_print.close();
 
             }
         );
+                // Search bar.
+            $( "#search_input" ).on(
+                "keyup",
+                function() {
+                    var value = $( this ).val().toLowerCase();
+                    $( "#seacrh_table tr" ).filter(
+                        function() {
+                            $( this ).toggle( $( this ).text().toLowerCase().indexOf( value ) > -1 )
+                        }
+                    );
+                }
+            );
     }
 );
 
 function updateTextInput(val) {
     document.getElementById('textInput').value=val; 
 }
+
 
 
 
